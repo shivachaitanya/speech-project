@@ -14,6 +14,7 @@ const int MAX_LINE = 1000;		// length of sequences
 const int TRUE = 1;               	// flag
 const int FALSE = 0;              	// flag
 extern int STOPITER;
+#include <vector>
 class STATE {
   double* recur_out; // array of output symbols
   double* next_out;  // array of output symbols
@@ -77,7 +78,7 @@ class HMM {
   double set_ab_counts(int* string_array,int symbol_count);
   double reestimate();				// returns sum of changes
   double test(int* string, int symbol_count=-1);// test one string 
-
+  void viterbi(vector<int> allign,double prob,int startState);
  public:
   HMM(int symbols, int states, int new_seed=-1);// initialize random model
   HMM(char* filename);                       	// initialize pre-built model

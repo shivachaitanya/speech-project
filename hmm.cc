@@ -58,13 +58,65 @@ using namespace std;
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stack>
 #include <vector>
+#include <cstring>
 #include "hmm.h"
 #include "random.h"
 int global_symbol_count;
 int STOPITER = 0;
+int startState = 1;
+
+stack<int> allign;
+vector<int> sequence;
 
 /************************* HMM DECLARATION ****************************/
+
+
+
+void HMM::viterbi(vector<int> sequence,double prob,int currentState)
+{
+	double prob1,prob2;
+
+	if(sequence.empty())
+		return;
+	else
+	{
+		
+		if(startState == 1)
+		{
+			currentState = 0;
+			prob = States[currentState]->set_recur_out(sequence[0]);
+			sequence.erase(sequence.begin(),sequence.begin()+1);
+			startState = 0;
+			viterbi(sequence , prob,currentState);
+			allign.push(currentState);
+		}
+		else
+		{
+		
+			//being in current state and producing *name
+			prob1 = prob * States[currentState]->set_recur_trans() * States[currentState]->set_recur_out(sequence[0]) ;
+			
+			//going to next state and producing *name
+			prob2 = prob * States[currentState]->set_next_trans() * States[currentState]->set_next_out(sequence[0]) ;
+			
+			if(prob1 > prob2)
+				prob = prob1;
+			else
+			{
+				prob = prob2;
+				currentState = currentState + 1;
+			}
+			sequence.erase(sequence.begin(),sequence.begin()+1);
+			viterbi(sequence,prob,currentState);
+			allign.push(currentState);
+		    
+		}
+
+	}
+
+}
 
 // create hmm, initialize model parameters from file.
 //
@@ -151,7 +203,7 @@ HMM::~HMM()
 void HMM::batch_train(char *filename, double min_delta_psum) 
 {
   int symbol_count,str;
-
+  
   // local arrays and integers used in the case with strings of unequal lengths
   double *y1, *y2, *y3, *y4; 
   double **y5, **y6;
@@ -390,7 +442,7 @@ void HMM::dump_model(char* filename)
   model << "\n";
   model.close();
   //cout<<"finally here"<<endl;
-  cout<<"---------------printing the optimal sequence--------------------"<<endl;
+/*  cout<<"---------------printing the optimal sequence--------------------"<<endl;
 	for (i = 0; i < global_symbol_count; i++) { 
 		maxProb = -100;		
     	for (j=max_states-1; j >= 0; j--) {
@@ -416,7 +468,22 @@ void HMM::dump_model(char* filename)
     }
    	//coping the contents of currentstate to previoustate
    	previousStateSeq = currentStateSeq;
-   	   
+*/
+
+
+//print out the optimal state sequence
+
+ viterbi(sequence,1,0);
+    //printing optimal seq
+    cout<<"---------------printing the optimal sequence--------------------"<<endl;
+    while (!allign.empty())
+	{
+		 std::cout << ' ' << allign.top();
+		 allign.pop();
+	}
+  
+
+  	   
    
   cout << "\nDumped model to file ==> " << filename << "\n";
 }
@@ -665,6 +732,7 @@ int HMM::load_string_matrix(char* filename)
   for (num_strings=0; fscanf(from,"%[^\n]\n",line)!=EOF; num_strings++) {
     for (sym=0,tmp=99; tmp>1; sym++) {
       tmp=sscanf(line,"%d %[0-9 ]",&val,line);
+      sequence.push_back(val);
     }
     if (symbol_count < sym)
       symbol_count=sym;
@@ -742,6 +810,9 @@ void HMM::rescale_betas(int col)
 // 
 double HMM::alpha_F(int* symbol_array, int symbol_count)
 {
+
+
+
   double accum;
   int i,j;
   
@@ -771,22 +842,7 @@ double HMM::alpha_F(int* symbol_array, int symbol_count)
     rescale_alphas(i+1);
   }
   global_symbol_count = symbol_count;
-//getting the sequence
-/*cout<<"---------------printing the optimal sequence--------------------"<<endl;
-	for (i = 0; i < symbol_count; i++) { 
-		maxProb = -100;		
-    	for (j=max_states-1; j > 0; j--) {
-    			if(alpha[i][j]>maxProb)
-    			{
-    				maxProb = alpha[i][j];
-    				maxProbState = j;
-    				
-    			}	
-    	
-    	
-    	}
-    	cout<< maxProbState <<" ";
-    }*/
+
   return (alpha[symbol_count][max_states-1]);
 }
 

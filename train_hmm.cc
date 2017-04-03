@@ -75,7 +75,7 @@ main(int argc, char* argv[])
   char newfilename[100],newfilename2[100];
   sprintf(newfilename,"%s.hmm",train_file);
   hmm->dump_model(newfilename);
-  strcpy(newfilename2,newfilename);
+ /* strcpy(newfilename2,newfilename);
   //rebuilding the model untill we get the convergence
   if(loopNeeded == 1)
   {
@@ -89,7 +89,13 @@ main(int argc, char* argv[])
 	  hmm->dump_model(newfilename);
 	  
 	  }
-  }	  
+  }*/
+  
+  
+  
+  
+  
+  	  
   delete hmm;
 }
 
