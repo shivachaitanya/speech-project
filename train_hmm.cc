@@ -75,6 +75,7 @@ main(int argc, char* argv[])
   char newfilename[100],newfilename2[100];
   sprintf(newfilename,"%s.hmm",train_file);
   hmm->dump_model(newfilename);
+  hmm->print_optimal();
  /* strcpy(newfilename2,newfilename);
   //rebuilding the model untill we get the convergence
   if(loopNeeded == 1)

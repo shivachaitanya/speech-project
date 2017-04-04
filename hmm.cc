@@ -66,7 +66,7 @@ using namespace std;
 int global_symbol_count;
 int STOPITER = 0;
 int startState = 1;
-
+char *seqfilename;
 stack<int> allign;
 vector<int> sequence;
 
@@ -118,6 +118,41 @@ void HMM::viterbi(vector<int> sequence,double prob,int currentState)
 
 }
 
+
+
+
+void HMM::print_optimal()
+{
+  int str,sym,tmp,val;
+  int symbol_count;
+  int i;
+  // open file
+  FILE *from;
+  char line[MAX_LINE];
+  from = fopen(seqfilename,"r");
+//sequence.clear(); //clearing the contents of vector
+	//getting number of input data strings and maximum length of the input sequences
+  symbol_count=0;
+  for (num_strings=0; fscanf(from,"%[^\n]\n",line)!=EOF; num_strings++) {
+   //clearing stack contents for new line input of input symbols
+  	sequence.clear();startState = 1;
+    for (sym=0,tmp=99; tmp>1; sym++) {
+      tmp=sscanf(line,"%d %[0-9 ]",&val,line);
+      sequence.push_back(val);
+      }
+      //print out the optimal state sequence
+
+	 viterbi(sequence,1,0);
+		//printing optimal seq
+		cout<<"---------------printing the optimal sequence--------------------"<<endl;
+		while (!allign.empty())
+		{
+			 std::cout << ' ' << allign.top();
+			 allign.pop();
+		}
+   }
+}
+      
 // create hmm, initialize model parameters from file.
 //
 HMM::HMM(char* filename)
@@ -471,16 +506,7 @@ void HMM::dump_model(char* filename)
 */
 
 
-//print out the optimal state sequence
 
- viterbi(sequence,1,0);
-    //printing optimal seq
-    cout<<"---------------printing the optimal sequence--------------------"<<endl;
-    while (!allign.empty())
-	{
-		 std::cout << ' ' << allign.top();
-		 allign.pop();
-	}
   
 
   	   
@@ -722,17 +748,18 @@ int HMM::load_string_matrix(char* filename)
   int str,sym,tmp,val;
   int symbol_count;
   int i;
+  seqfilename=filename;
   // open file
   FILE *from;
   char line[MAX_LINE];
   from = fopen(filename,"r");
-
+//sequence.clear(); //clearing the contents of vector
 	//getting number of input data strings and maximum length of the input sequences
   symbol_count=0;
   for (num_strings=0; fscanf(from,"%[^\n]\n",line)!=EOF; num_strings++) {
     for (sym=0,tmp=99; tmp>1; sym++) {
       tmp=sscanf(line,"%d %[0-9 ]",&val,line);
-      sequence.push_back(val);
+      //sequence.push_back(val);
     }
     if (symbol_count < sym)
       symbol_count=sym;

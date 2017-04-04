@@ -79,6 +79,7 @@ class HMM {
   double reestimate();				// returns sum of changes
   double test(int* string, int symbol_count=-1);// test one string 
   void viterbi(vector<int> allign,double prob,int startState);
+  
  public:
   HMM(int symbols, int states, int new_seed=-1);// initialize random model
   HMM(char* filename);                       	// initialize pre-built model
@@ -89,4 +90,5 @@ class HMM {
   void dump_model(char* filename);           	// dumps the current model
   void dump_seq(ofstream &seq, int length);     // writes one sequence 
   void set_seed(int s) { seed = s;}            	// set seed
+  void print_optimal();
 };
